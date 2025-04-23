@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "installer",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/installer/src/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "dashboard",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/installer/tools/dashboard/src/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/installer/tools/dashboard/",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}

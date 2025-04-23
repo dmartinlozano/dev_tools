@@ -1,0 +1,5 @@
+apiVersion: v2
+name: dashboard
+version: 0.1.0
+description: Helm chart para desplegar el dashboard NiceGUI
+appVersion: "1.0.0"

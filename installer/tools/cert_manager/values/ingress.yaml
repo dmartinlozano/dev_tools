@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ingress-tls
+  namespace: dev-tools
+spec:
+  secretName: ingress-tls
+  issuerRef:
+    name: ingress-issuer
+    kind: ClusterIssuer
+  commonName: "${BASE_DNS}"
+  dnsNames:
+  - "${BASE_DNS}"
+  - "*.${BASE_DNS}"

@@ -1,0 +1,64 @@
+image:
+  registry: docker.io
+  repository: bitnami/postgresql
+  tag: "17.5.0-debian-12-r3"
+
+primary:
+  service:
+    type: ClusterIP
+  persistence:
+    enabled: true
+    size: 8Gi
+  configuration: |
+    listen_addresses = '*'
+    ssl = on
+    ssl_cert_file = '/opt/bitnami/postgresql/certs/tls.crt'
+    ssl_key_file = '/opt/bitnami/postgresql/certs/tls.key'
+    ssl_ca_file = '/opt/bitnami/postgresql/certs/ca.crt'
+    hba_file = '/opt/bitnami/postgresql/conf/pg_hba.conf'
+  pgHbaConfiguration: |
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    # "local" is for Unix domain socket connections only
+    local   all             all                                     trust
+    # IPv4 local connections:
+    hostssl all             all             0.0.0.0/0               md5
+    hostnossl all           all             0.0.0.0/0               md5
+    # IPv6 local connections:
+    hostssl all             all             ::/0                    md5
+    hostnossl all           all             ::/0                    md5
+  extraEnvVars:
+    - name: POSTGRESQL_ENABLE_TLS
+      value: "yes"
+    - name: POSTGRESQL_TLS_CERT_FILE
+      value: "/opt/bitnami/postgresql/certs/tls.crt"
+    - name: POSTGRESQL_TLS_KEY_FILE
+      value: "/opt/bitnami/postgresql/certs/tls.key"
+    - name: POSTGRESQL_TLS_CA_FILE
+      value: "/opt/bitnami/postgresql/certs/ca.crt"
+
+networkPolicy:
+  enabled: true
+  ingressRules:
+    primaryAccessOnlyFrom:
+      enabled: true
+      namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: dev-tools
+      podSelector: {}
+
+volumePermissions:
+  enabled: true
+
+serviceAccount:
+  create: false
+  name: dev-tools-sa
+
+auth:
+  database: postgres
+
+tls:
+  enabled: true
+  certificatesSecret: services-tls
+  certFilename: tls.crt
+  certKeyFilename: tls.key
+  certCAFilename: ca.crt
