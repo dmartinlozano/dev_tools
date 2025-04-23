@@ -1,0 +1,102 @@
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: bitnami/keycloak
+  tag: 26.2.4
+
+auth:
+  adminUser: admin
+  
+externalDatabase:
+  host: postgresql.dev-tools.svc.cluster.local
+  port: 5432
+  database: keycloak
+  ssl: true
+  parameters: "sslmode=verify-full&sslrootcert=/opt/bitnami/keycloak/certs/ca.crt"
+
+tls:
+  enabled: true
+  existingSecret: services-tls
+  certFile: tls.crt
+  keyFile: tls.key
+  caFile: ca.crt
+  usePem: true
+  keystoreFilename: keycloak.p12
+
+
+production: false
+proxy: edge
+extraEnvVars:
+  - name: KC_SPI_CORS_ENABLED
+    value: "false"
+  - name: KC_SPI_CORS_CONFIGURATIONS_APP_ALLOWED_METHODS
+    value: "GET,POST,OPTIONS"
+  - name: KC_SPI_CORS_CONFIGURATIONS_APP_ALLOWED_HEADERS
+    value: "Accept,Authorization,Content-Type,Origin,X-Requested-With"
+  - name: KC_SPI_CORS_CONFIGURATIONS_APP_EXPOSED_HEADERS
+    value: "Content-Disposition"
+  - name: KC_SPI_CORS_CONFIGURATIONS_APP_MAX_AGE
+    value: "3600"
+  - name: KC_PROXY
+    value: "edge"
+  - name: KEYCLOAK_PROXY
+    value: "edge"
+  - name: KEYCLOAK_ENABLE_HTTPS
+    value: "true"
+  - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+    value: "true"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "true"
+  - name: KC_HTTP_RELATIVE_PATH
+    value: "/"
+  - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
+    value: "true"
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_METRICS_ENABLED
+    value: "true"
+
+
+serviceAccount:
+  create: false
+  name: dev-tools-sa
+
+
+service:
+  type: ClusterIP
+  ports:
+    https: 8443
+
+resources:
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-port-in-redirects: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    cert-manager.io/cluster-issuer: ingress-issuer
+  tls: true
+  tlsSecret: ingress-tls
+  servicePort: https
+
+postgresql:
+  enabled: false
+
+jgroups:
+  discoveryProtocol: dns.DNS_PING
+  discoveryProperties: >
+    dns_query=keycloak-headless.dev-tools.svc.cluster.local

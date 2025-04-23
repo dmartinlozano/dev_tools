@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = false
+name = "dashboard"
+
+[packages]
+requests = ">=2.32.3"
+nicegui = ">=2.18.0"
+
+[dev-packages]
+pytest = ">=8.3.5"
+black = ">=25.1.0"
+flake8 = ">=1.6.0"
+
+[requires]
+python_version = "3.13.3"

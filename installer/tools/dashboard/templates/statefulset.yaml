@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "dashboard.fullname" . }}
+  labels:
+    app: {{ include "dashboard.name" . }}
+    app.kubernetes.io/name: {{ include "dashboard.name" . }}
+spec:
+  serviceName: {{ include "dashboard.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "dashboard.name" . }}
+      app.kubernetes.io/name: {{ include "dashboard.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dashboard.name" . }}
+        app.kubernetes.io/name: {{ include "dashboard.name" . }}
+    spec:
+      containers:
+        - name: dashboard
+          image: {{ .Values.image.repository }}{{- if .Values.image.tag }}:{{ .Values.image.tag }}{{ end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: BASE_DNS
+              value: "{{ .Values.BASE_DNS }}"
+            - name: CERT_TYPE
+              value: "{{ .Values.CERT_TYPE }}"
