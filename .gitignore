@@ -1,0 +1,5 @@
+__pycache__/
+installer/.tmp
+installer/tools/dashboard/k8s/deployment.yaml.generated
+installer/tools/dashboard/k8s/service.yaml.generated
+installer/Pipfile.lock

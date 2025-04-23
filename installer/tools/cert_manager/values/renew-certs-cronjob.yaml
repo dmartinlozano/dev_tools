@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renew-ca-and-certs
+  namespace: dev-tools
+spec:
+  schedule: "0 2 */80 * *"  # Every 80 days at 2:00 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: renew-ca-and-certs
+            image: bitnami/vault:1.15.0
+            env:
+            - name: VAULT_ADDR
+              value: "http://vault-0.dev-tools.svc.cluster.local:8200"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-transit-token
+                  key: token
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              vault secrets tune -max-lease-ttl=1920h pki
+              vault write -field=certificate pki/root/generate/internal common_name="${BASE_DNS}" ttl=1920h
+              vault write pki/config/urls issuing_certificates="http://vault-0.dev-tools.svc.cluster.local:8200/v1/pki/ca" crl_distribution_points="http://vault-0.dev-tools.svc.cluster.local:8200/v1/pki/crl"
+              vault write pki/roles/dev-tools allowed_domains="${BASE_DNS}" allow_subdomains=true max_ttl=1440h
+              CERT_JSON=$(vault write -format=json pki/issue/dev-tools common_name="ingress.dev-tools.svc.cluster.local" ttl="1440h")
+              CERT=$(echo "$CERT_JSON" | jq -r .data.certificate)
+              KEY=$(echo "$CERT_JSON" | jq -r .data.private_key)
+              CA=$(echo "$CERT_JSON" | jq -r .data.issuing_ca)
+              vault kv put secret/dev-tools/ingress/tls tls.crt="$CERT" tls.key="$KEY" ca.crt="$CA"

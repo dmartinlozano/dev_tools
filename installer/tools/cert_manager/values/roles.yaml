@@ -1,0 +1,54 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-vault-token-creator
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts/token"]
+    verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-vault-token-creator-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-vault-token-creator
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager
+    namespace: dev-tools
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: installer-sa
+  namespace: dev-tools
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: read-vault-token
+  namespace: dev-tools
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["vault-token"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: installer-sa-read-vault-token
+  namespace: dev-tools
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: read-vault-token
+subjects:
+- kind: ServiceAccount
+  name: installer-sa
+  namespace: dev-tools

@@ -1,0 +1,87 @@
+replicaCount: 1
+revisionHistoryLimit: 10
+
+image:
+  repository: requarks/wiki
+  tag: 2.5
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-port-in-redirects: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    cert-manager.io/cluster-issuer: ingress-issuer
+  hosts:
+    - host: "${WIKI_HOSTNAME}"
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: wiki
+          servicePort: 80
+  tls:
+   - secretName: services-tls
+     hosts:
+      - "${WIKI_HOSTNAME}"
+
+
+nodeExtraCaCerts: /etc/ssl/certs/ca.crt
+
+externalPostgresql:
+  databaseURL: postgres://${DB_USER}:${DB_PASSWORD}@postgresql.dev-tools.svc.cluster.local:5432/wiki?ssl=true
+
+postgresql:
+  enabled: false #bringing external PostgreSQL
+  postgresqlHost: postgresql.dev-tools.svc.cluster.local
+  postgresqlPort: 5432
+  postgresqlUser: ${DB_USER}
+  postgresqlPassword: ${DB_PASSWORD}
+  postgresqlDatabase: wiki
+  ssl: true
+  ca: /etc/ssl/certs/ca.crt
+
+serviceAccount:
+  create: false
+  name: dev-tools-sa
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 3000
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 3000
+
+startupProbe:
+  initialDelaySeconds: 15
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 60
+  httpGet:
+    path: /healthz
+    port: 3000
+
+volumeMounts:
+  - name: services-tls
+    mountPath: /etc/ssl/certs/ca.crt
+    subPath: ca.crt
+    readOnly: true
+
+volumes:
+  - name: wikijs-config
+    configMap:
+      name: wikijs-config
+  - name: services-tls
+    secret:
+      secretName: services-tls
