@@ -1,0 +1,145 @@
+from kubernetes import config #Dont delete
+from tools.utils import create_namespace, create_secret, get_dns, get_secret
+from tools.installer import Installer
+from nicegui import ui
+from tools.helm_client import HelmClient
+import threading
+import base64
+
+helmClient = HelmClient()
+installer = Installer()
+
+def set_background():
+    ui.add_body_html('<script>document.body.style.background = "linear-gradient(135deg, #7ab8fc, #5ca2e0)";</script>')
+
+@ui.page('/')
+def index():
+    set_background()
+    with ui.card().classes('fixed-center'):
+
+        ui.label('Welcome to Dev Tools installer').style('font-size: 2rem; font-weight: bold; text-align: center;')
+        ui.label("Let's review your Kubernetes configuration")
+        def on_next():
+
+            releases = helmClient.list_releases()
+            required_tools = ['cert-manager', 'ingress-nginx', 'vault', 'postgresql', 'keycloak']
+            deployed_tools = {}
+            for tool in required_tools:
+                deployed_tools[tool] = False
+            for release in releases:
+                if release['name'] in required_tools and release['status'] == 'deployed':
+                    deployed_tools[release['name']] = True
+            all_tools_deployed = all(deployed_tools.values())
+
+            if all_tools_deployed:
+                ui.navigate.to('/tools')
+            elif installer.mandatory_tools_step == 0:
+                ui.navigate.to('/mandatory-tools-initial-installation')
+            elif installer.mandatory_tools_step == 1:
+                ui.navigate.to('/mandatory-tools-progress-installation')
+            else:
+                ui.navigate.to('/tools')
+
+        ui.button('Next', color="blue", on_click=on_next).style('align-self: flex-end')
+
+@ui.page('/mandatory-tools-initial-installation')
+def mandatory_tools_initial_installation():
+
+    set_background()
+    default_dns = get_dns()
+    uploaded = {}
+    def file_upload_handler(key):
+        return lambda e: uploaded.update({key: e.content})
+    
+    with ui.card().style('min-width: 420px; max-width: 600px; width: 100%;').classes('fixed-center'):
+        ui.label('Devtools configuration').style('font-size: 2rem; font-weight: bold; text-align: center; width: 100%;')
+        base_dns = ui.input('Kubernetes domain', validation={'Domain is required': lambda v: bool(v)}, value=default_dns).props('outlined').classes('mb-2 w-full')
+        admin_password = ui.input('Admin user password', password=True, validation={'Password is required': lambda v: bool(v)}).props('outlined').classes('mb-2 w-full')
+        ui.label('Select the certificate type for your domain').classes('mb-2 w-full')
+        cert_type = ui.radio(['letsencrypt', 'custom', 'selfsigned'], value='letsencrypt').classes('mb-2 w-full')
+        admin_email = ui.input('Admin email').props('outlined').classes('mb-2 w-full').bind_visibility_from(cert_type, 'value', value='letsencrypt')
+        for key, label in [('public_cert', 'Public certificate'), ('private_key', 'Private key'), ('ca_bundle', 'CA Bundle')]:
+            ui.upload(label=label, on_upload=file_upload_handler(key)).classes('mb-2 w-full').bind_visibility_from(cert_type, 'value', value='custom')
+        error = ui.label('').classes('text-red-500 text-xs mb-2 w-full')
+        def submit():
+            if not cert_type.value:
+                error.set_text('Select a certificate type')
+                return
+            if cert_type.value == 'letsencrypt' and not admin_email.value:
+                error.set_text('Email is required for Letsencrypt')
+                return
+            if cert_type.value == 'custom':
+                for key, label in [('public_cert', 'Public certificate'), ('private_key', 'Private key'), ('ca_bundle', 'CA Bundle')]:
+                    if not uploaded.get(key):
+                        error.set_text(f'{label} is required')
+                        return
+            error.set_text('')
+            form_data = {
+                'base_dns': base_dns.value,
+                'admin_password': admin_password.value,
+                'cert_type': cert_type.value,
+                'admin_email': admin_email.value,
+                'public_cert': uploaded.get('public_cert'),
+                'private_key': uploaded.get('private_key'),
+                'ca_bundle': uploaded.get('ca_bundle'),
+            }
+            create_namespace()
+            encoded_data = {k: base64.b64encode(v.encode()).decode('utf-8') if isinstance(v, str) and v is not None else v for k, v in form_data.items()}
+            create_secret(
+                secret_name="config",
+                data=encoded_data
+            )
+            installer.mandatory_tools_step = 1
+            ui.navigate.to('/mandatory-tools-progress-installation')
+        ui.button('Next', color="blue", on_click=submit).style('align-self: flex-end')
+
+@ui.page('/mandatory-tools-progress-installation')
+def mandatory_tools_progress_installation():
+    set_background()
+    if not installer.is_installing:
+        threading.Thread(target=installer.install, daemon=True).start()
+    with ui.card().style('min-width: 420px; max-width: 600px; width: 100%;').classes('fixed-center'):
+        ui.label('Installing DevTools').style('font-size: 1.5rem; font-weight: bold; text-align: center; width: 100%;')
+        progress_label = ui.label(installer.progress_steps[-1] if installer.progress_steps else 'Starting...').classes('mb-2')
+        spinner = ui.spinner(size='sm').props('color=primary').style('align-self: flex-end')
+        continue_button = ui.button('Next', color="blue", on_click=lambda: ui.navigate.to('/tools')).style('align-self: flex-end; display: none;')
+        def update_progress():
+            if installer.progress_steps:
+                progress_label.set_text(installer.progress_steps[-1])
+            if installer.is_installing:
+                spinner.set_visibility(True)
+                continue_button.style('align-self: flex-end; display: none;')
+            else:
+                spinner.set_visibility(False)
+                continue_button.style('align-self: flex-end; display: inline-block;')
+                progress_label.set_text('Installation finished!')
+                return False
+            return True
+        ui.timer(0.5, update_progress)
+
+@ui.page('/tools')
+def tools():
+    set_background()
+    with ui.card().classes('fixed-center'):
+        ui.label('Dev Tools is ready').style('font-size: 2rem; font-weight: bold; text-align: center;')
+        ui.label("Select an option:")
+        secret = get_secret(secret_name="config")
+        dns = secret['base_dns']
+        ui.link(
+            text='Open Keycloak',
+            target=f'https://keycloak.{dns}',
+            new_tab=True,
+        )
+        ui.link(
+            text='Open Dashboard',
+            target=f'https://devtools.{dns}',
+            new_tab=True,
+        )
+
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run(
+        port=8080,
+        reload=True,
+        title='Dev Tools Installer',
+        favicon='https://nicegui.io/favicon.ico'
+    )

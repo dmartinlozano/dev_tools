@@ -1,0 +1,27 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "installer",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "src/main.py",
+                "FLASK_ENV": "development"
+            },
+            "args": [
+                "run",
+                "--host=0.0.0.0",
+                "--port=8000",
+                "--reload"
+            ],
+            "jinja": true,
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/installer"
+        }
+    ]
+}

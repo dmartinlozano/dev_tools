@@ -1,0 +1,6 @@
+k8s/.exec.log
+k8s/vault/.tmp-vault-root-token
+k8s/certificates/.tmp
+k8s/dashboard-backend/Pipfile.lock
+installer/.tmp
+__pycache__/
