@@ -1,0 +1,12 @@
+apiVersion: v2
+name: dashboard-backend
+version: 0.1.0
+description: A simple dashboard backend app
+appVersion: "1.0.0"
+keywords:
+  - dashboard
+  - backend
+  - api
+maintainers:
+  - name: Your Name
+    email: your@email.com

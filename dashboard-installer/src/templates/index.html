@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dev Tools installer</title>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #7ab8fc, #5ca2e0);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-300 to-blue-500">
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md" id="initDiv">
+        <h1 class="text-2xl font-bold mb-4 text-center">Welcome to Dev Tools installer</h1>
+        <p class="text-gray-600 text-center">Let's review your Kubernetes configuration</p>
+        <div class="flex justify-end mt-6">
+            <button id="next1Btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors">Next</button>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md" id="infoDiv" style="display: none;">
+        <h1 class="text-2xl font-bold mb-4 text-center">Dev Tools configuration</h1>
+        <form id="kubeForm">
+            <div class="mb-4 flex items-center">
+                <label for="kubeDomain" class="block text-gray-700 font-semibold mr-2 whitespace-nowrap">Kubernetes domain&nbsp;&nbsp;</label>
+                <input id="kubeDomain" name="kubeDomain" type="text" class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required />
+            </div>
+            <div id="kubeDomainError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+            <div class="mb-4 flex items-center">
+                <label for="adminPassword" class="block text-gray-700 font-semibold mr-2 whitespace-nowrap">Password admin user&nbsp;&nbsp;</label>
+                <input id="adminPassword" name="adminPassword" type="password" class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required />
+            </div>
+            <div id="adminPasswordError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+            <div class="mb-4">
+                <span class="block text-gray-700 font-semibold mb-2">Certificates:</span>
+                <label class="inline-flex items-center mr-4">
+                    <input type="radio" class="form-radio" name="certType" value="letsencrypt" required />
+                    <span class="ml-2">Letsencrypt (productive environment)</span>
+                </label>
+                <label class="inline-flex items-center mr-4">
+                    <input type="radio" class="form-radio" name="certType" value="custom" required />
+                    <span class="ml-2">Custom certificates</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" class="form-radio" name="certType" value="selfsigned" required />
+                    <span class="ml-2">Self-signed (stage environment)</span>
+                </label>
+            </div>
+            <div class="mb-4" id="customCertsDiv" style="display: none;">
+                <label class="block text-gray-700 font-semibold mb-1">Public certificate</label>
+                <input type="file" id="publicCert" name="publicCert" accept=".crt,.pem" class="mb-2 w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <div id="publicCertError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+                <label class="block text-gray-700 font-semibold mb-1">Private key</label>
+                <input type="file" id="privateKey" name="privateKey" accept=".key,.pem" class="mb-2 w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <div id="privateKeyError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+                <label class="block text-gray-700 font-semibold mb-1">CA Bundle</label>
+                <input type="file" id="caBundle" name="caBundle" accept=".crt,.pem" class="w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <div id="caBundleError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+            </div>
+            <div class="mb-4 flex items-center gap-2" id="adminEmailDiv" style="display: none;">
+                <label for="adminEmail" class="text-gray-700 font-semibold whitespace-nowrap mb-0">Admin email&nbsp;&nbsp;</label>
+                <input id="adminEmail" name="adminEmail" type="email" class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            </div>
+            <div id="adminEmailError" class="text-red-500 text-xs mb-2" style="display:none;"></div>
+            <div class="flex justify-end mt-6">
+                <button id="next2Btn" type="button" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors">Next</button>
+            </div>
+        </form>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md" id="progressLog" style="display: none;">
+        <h1 class="text-2xl font-bold mb-4 text-center">Installing tools</h1>
+        <div id="progressMessages" class="bg-gray-100 rounded p-4 mb-4 text-sm font-mono"></div>
+        <div class="flex justify-end mt-6">
+            <button id="next3Btn" type="button" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors" style="display: none;">Next</button>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md" id="finishDiv" style="display: none;">
+        <h1 class="text-2xl font-bold mb-4 text-center">Configuration is finished.</h1>
+        <p class="text-gray-600 text-center">You will be redirect to dashboard</p>
+        <div class="flex justify-end mt-6">
+            <button id="finishBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-colors">Accept</button>
+        </div>
+    </div>
+    <script src="/static/main.js"></script>
+</body>
+</html>

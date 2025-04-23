@@ -1,0 +1,12 @@
+replicaCount: 1
+
+image:
+  repository: dashboard-installer:local
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+port: 8000

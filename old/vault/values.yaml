@@ -1,0 +1,90 @@
+image:
+  repository: hashicorp/vault
+  tag: "1.19.0"
+  
+injector:
+  enabled: true
+
+server:
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+      setNodeId: true
+
+  standalone:
+    enabled: false
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: null
+    accessMode: ReadWriteOnce
+
+  extraEnvironmentVars:
+    VAULT_RAFT_NODE_ID: "$(HOSTNAME)"
+    VAULT_METRICS_ENABLED: "true"
+    VAULT_TELEMETRY_PROMETHEUS_RETENTION_TIME: "30s"
+    VAULT_LOG_LEVEL: "info"
+
+  extraVolumes:
+    - type: secret
+      name: vault-ts
+      path: /vault/userconfig/vault-ts
+
+  config: |
+    ui = true
+
+    listener "tcp" {
+      address       = "0.0.0.0:8200"
+      tls_cert_file = "/vault/userconfig/vault-ts/tls.crt"
+      tls_key_file  = "/vault/userconfig/vault-ts/tls.key"
+      telemetry {
+        # Disable unauthenticated access to metrics
+        unauthenticated_metrics_access = "false" 
+      }
+    }
+
+    storage "raft" {
+      path    = "/vault/data"
+      node_id = "${VAULT_RAFT_NODE_ID}"
+    }
+
+    telemetry {
+      prometheus_retention_time = "30s"
+      disable_hostname = true
+    }
+
+    # Enable audit logging to a file inside the container
+    # Ensure the path /vault/logs exists and is writable, or mount a volume
+    audit {
+      type = "file"
+      options {
+        path = "/vault/logs/audit.log" 
+        # log_raw = "true" # Uncomment carefully if raw secret data is needed in logs
+      }
+    }
+
+    disable_mlock = true
+
+  # Add resource requests and limits
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8200
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/v1/sys/metrics" # Prometheus might need auth now
+      prometheus.io/port: "8200"
+
+  init:
+    enabled: false

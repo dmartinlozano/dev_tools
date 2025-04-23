@@ -1,0 +1,101 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 312B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.13.3-slim
+#2 DONE 1.6s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 44.18kB done
+#4 DONE 0.0s
+
+#5 [1/6] FROM docker.io/library/python:3.13.3-slim@sha256:914bf5c12ea40a97a78b2bff97fbdb766cc36ec903bfb4358faf2b74d73b555b
+#5 resolve docker.io/library/python:3.13.3-slim@sha256:914bf5c12ea40a97a78b2bff97fbdb766cc36ec903bfb4358faf2b74d73b555b 0.0s done
+#5 sha256:f46ee18793e5d143ebd1e7075c844688e04e00ce5614ce646d9e1d100ba7a21b 5.45kB / 5.45kB done
+#5 sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 0B / 28.07MB 0.1s
+#5 sha256:e2cbf253efde557c5344b6b66ea9fcfb70a6f4bf8d619a1a73634aec15d97afc 0B / 3.33MB 0.1s
+#5 sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea 0B / 12.49MB 0.1s
+#5 sha256:914bf5c12ea40a97a78b2bff97fbdb766cc36ec903bfb4358faf2b74d73b555b 9.12kB / 9.12kB done
+#5 sha256:0675556e1c0d0d1f88c7799132c9fcb5cb64481d1a70bdcdad379e62a627330f 1.75kB / 1.75kB done
+#5 sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 12.58MB / 28.07MB 0.4s
+#5 sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 22.02MB / 28.07MB 0.6s
+#5 sha256:e2cbf253efde557c5344b6b66ea9fcfb70a6f4bf8d619a1a73634aec15d97afc 3.33MB / 3.33MB 0.5s done
+#5 sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea 1.05MB / 12.49MB 0.6s
+#5 sha256:867244661c52679fd8388356e5b3180e2d68e96045109d2d9e8223c907d4aba7 0B / 250B 0.6s
+#5 sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 27.26MB / 28.07MB 0.7s
+#5 sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea 6.29MB / 12.49MB 0.7s
+#5 extracting sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f
+#5 sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 28.07MB / 28.07MB 0.7s done
+#5 sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea 12.49MB / 12.49MB 0.8s done
+#5 sha256:867244661c52679fd8388356e5b3180e2d68e96045109d2d9e8223c907d4aba7 250B / 250B 0.7s done
+#5 extracting sha256:943331d8a9a9863299c02e5de6cce58602a5bc3dc564315aa886fe706376f27f 1.1s done
+#5 extracting sha256:e2cbf253efde557c5344b6b66ea9fcfb70a6f4bf8d619a1a73634aec15d97afc
+#5 extracting sha256:e2cbf253efde557c5344b6b66ea9fcfb70a6f4bf8d619a1a73634aec15d97afc 0.1s done
+#5 extracting sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea
+#5 extracting sha256:7190e4956f30d7b185db75e71739f287f8652067be5f19eef6593718092273ea 0.5s done
+#5 extracting sha256:867244661c52679fd8388356e5b3180e2d68e96045109d2d9e8223c907d4aba7 done
+#5 DONE 2.5s
+
+#6 [2/6] WORKDIR /app
+#6 DONE 0.1s
+
+#7 [3/6] RUN pip install pipenv
+#7 0.973 Collecting pipenv
+#7 1.016   Downloading pipenv-2025.0.2-py3-none-any.whl.metadata (17 kB)
+#7 1.041 Collecting certifi (from pipenv)
+#7 1.047   Downloading certifi-2025.4.26-py3-none-any.whl.metadata (2.5 kB)
+#7 1.062 Collecting packaging>=22 (from pipenv)
+#7 1.069   Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+#7 1.137 Collecting setuptools>=67 (from pipenv)
+#7 1.144   Downloading setuptools-80.7.1-py3-none-any.whl.metadata (6.6 kB)
+#7 1.176 Collecting virtualenv>=20.24.2 (from pipenv)
+#7 1.183   Downloading virtualenv-20.31.2-py3-none-any.whl.metadata (4.5 kB)
+#7 1.199 Collecting distlib<1,>=0.3.7 (from virtualenv>=20.24.2->pipenv)
+#7 1.207   Downloading distlib-0.3.9-py2.py3-none-any.whl.metadata (5.2 kB)
+#7 1.222 Collecting filelock<4,>=3.12.2 (from virtualenv>=20.24.2->pipenv)
+#7 1.230   Downloading filelock-3.18.0-py3-none-any.whl.metadata (2.9 kB)
+#7 1.246 Collecting platformdirs<5,>=3.9.1 (from virtualenv>=20.24.2->pipenv)
+#7 1.253   Downloading platformdirs-4.3.8-py3-none-any.whl.metadata (12 kB)
+#7 1.267 Downloading pipenv-2025.0.2-py3-none-any.whl (3.0 MB)
+#7 1.337    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 54.1 MB/s eta 0:00:00
+#7 1.345 Downloading packaging-25.0-py3-none-any.whl (66 kB)
+#7 1.355 Downloading setuptools-80.7.1-py3-none-any.whl (1.2 MB)
+#7 1.377    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 62.6 MB/s eta 0:00:00
+#7 1.387 Downloading virtualenv-20.31.2-py3-none-any.whl (6.1 MB)
+#7 1.479    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.1/6.1 MB 67.4 MB/s eta 0:00:00
+#7 1.487 Downloading certifi-2025.4.26-py3-none-any.whl (159 kB)
+#7 1.500 Downloading distlib-0.3.9-py2.py3-none-any.whl (468 kB)
+#7 1.517 Downloading filelock-3.18.0-py3-none-any.whl (16 kB)
+#7 1.526 Downloading platformdirs-4.3.8-py3-none-any.whl (18 kB)
+#7 1.553 Installing collected packages: distlib, setuptools, platformdirs, packaging, filelock, certifi, virtualenv, pipenv
+#7 2.863 Successfully installed certifi-2025.4.26 distlib-0.3.9 filelock-3.18.0 packaging-25.0 pipenv-2025.0.2 platformdirs-4.3.8 setuptools-80.7.1 virtualenv-20.31.2
+#7 2.863 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#7 2.942 
+#7 2.942 [notice] A new release of pip is available: 25.0.1 -> 25.1.1
+#7 2.942 [notice] To update, run: pip install --upgrade pip
+#7 DONE 3.0s
+
+#8 [4/6] COPY Pipfile* ./
+#8 DONE 0.0s
+
+#9 [5/6] RUN pipenv install --deploy --system
+#9 0.270 Installing dependencies from Pipfile.lock (898af8)...
+#9 DONE 2.2s
+
+#10 [6/6] COPY src/ ./src/
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 0.2s done
+#11 writing image sha256:486f59ebc9b655c108cb4a605f7adef14702235376c473d1b81c5cc5fc186e76 done
+#11 naming to docker.io/library/dashboard-backend:local done
+#11 DONE 0.2s
+
+View build details: docker-desktop://dashboard/build/default/default/u2uhzvnhvblnxcs76iyofgxdr

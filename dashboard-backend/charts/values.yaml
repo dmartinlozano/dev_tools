@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: dashboard-backend:local
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 443
+  targetPort: 443
+
+port: 443
+
+DASHBOARD_HOSTNAME: "${DASHBOARD_HOSTNAME}"
+
+tls:
+  enabled: true
+  certificatesSecret: services-tls
+  certFilename: tls.crt
+  certKeyFilename: tls.key
+  certCAFilename: ca.crt

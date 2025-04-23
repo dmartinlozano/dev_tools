@@ -1,0 +1,9 @@
+tls:
+  enabled: true
+  existingSecret: services-tls
+  certFile: tls.crt
+  keyFile: tls.key
+  caFile: ca.crt
+
+metrics:
+  enabled: true

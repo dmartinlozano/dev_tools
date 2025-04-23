@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dashboard-frontend.fullname" . }}
+  labels:
+    app: {{ include "dashboard-frontend.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "dashboard-frontend.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dashboard-frontend.name" . }}
+    spec:
+      serviceAccountName: dev-tools-sa
+      containers:
+        - name: dashboard-frontend
+          image: {{ .Values.image.repository }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.tls.enabled }}
+          volumeMounts:
+            - name: tls-certs
+              mountPath: /etc/tls
+              readOnly: true
+          env:
+            - name: TLS_CERT
+              value: "/etc/tls/{{ .Values.tls.certFile }}"
+            - name: TLS_KEY
+              value: "/etc/tls/{{ .Values.tls.keyFile }}"
+            - name: TLS_CA
+              value: "/etc/tls/{{ .Values.tls.caFile }}"
+          {{- end }}
+      {{- if .Values.tls.enabled }}
+      volumes:
+        - name: tls-certs
+          secret:
+            secretName: {{ .Values.tls.existingSecret }}
+      {{- end }}
